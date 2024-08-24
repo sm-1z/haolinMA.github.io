@@ -1,0 +1,26 @@
+.header {
+    border: 0px solid black;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    height: 8vh;
+    font-size: 18px;
+}
+
+.header ul {
+    position: relative;
+    display: flex;
+    color: rgba(42, 42, 42, 0.8);
+}
+
+.header ul li {
+    list-style: none;
+    width: 80px;
+    line-height: 20px;
+    text-align: center;
+}
+
+.header ul li a {
+    text-decoration: none;
+    color: rgba(47, 79, 79, 0.7);
+}

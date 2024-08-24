@@ -1,0 +1,65 @@
+.index_person_info {
+    border: 0px solid black;
+    width: 300px;
+    text-align: center;
+    margin-left: 50px;
+    float: left;
+    font-size: 14px;
+}
+
+.index_person_info img {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+    /* 垂直居中 */
+}
+
+.index_person_info ul li {
+    list-style: none;
+    text-align: left;
+    margin: 15px;
+    margin-left: 30px;
+}
+
+.index_person_info ul li a {
+    text-decoration: none;
+    color: rgba(52, 52, 52, 0.9);
+    font-family: Consolas, "Courier New", monospace;
+}
+
+.index_article {
+    border: 0px solid black;
+    float: left;
+    margin-left: 50px;
+    margin-top: 20px;
+    width: 720px;
+    word-spacing: 5px;
+    letter-spacing: normal;
+    font-family: Helvetica, "微软雅黑", sans-serif;
+    font-size: 17px;
+}
+
+.index_article h1 {
+    font-size: 30px;
+}
+
+.index_article h2 {
+    margin-bottom: 25px;
+}
+
+.index_article p {
+    line-height: 1.3;
+}
+
+.index_article ul li {
+    line-height: 8px;
+    margin-bottom: 40px;
+}
+
+.index_article ul li p {
+    line-height: 8px;
+}
+
+.index_article ul li a {
+    color: rgba(100, 191, 191, 1.0);
+}
