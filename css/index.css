@@ -52,12 +52,13 @@
 }
 
 .index_article ul li {
-    line-height: 8px;
-    margin-bottom: 40px;
+    line-height: 25px;
+    margin-bottom: 20px;
 }
 
 .index_article ul li p {
-    line-height: 8px;
+    line-height: 15px;
+    margin: 5px 0;
 }
 
 .index_article ul li a {
