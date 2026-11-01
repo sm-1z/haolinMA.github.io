@@ -1,60 +1,803 @@
-<!doctype html>
-<html>
-
+<!DOCTYPE html>
+<html lang="zh-CN">
 <head>
-    <title>Welcome to My Site</title>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh" content="30">
-    <meta name="author" content="Haolin MA">
-    <meta name="description" content="Haolin Ma's personal website">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="author" content="Haolin Ma">
+  <meta name="description" content="马浩林 Haolin Ma · 人形机器人运动控制算法工程师：动作重定向、具身数据与全身遥操作">
+  <title>马浩林 Haolin Ma · 人形机器人运动控制</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --white: #fff;
+      --light: #f5f5f7;
+      --dark: #1d1d1f;
+      --red: #ff3a17;
+      --red-soft: rgba(255, 58, 23, .08);
+      --text: #1d1d1f;
+      --secondary: #6e6e73;
+      --muted: #86868b;
+      --border: rgba(0, 0, 0, .09);
+      --shadow: 0 8px 30px rgba(0, 0, 0, .06);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      background: var(--white);
+      font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+    a { color: inherit; }
+    .container { width: min(1100px, calc(100% - 64px)); margin-inline: auto; }
+    .section { padding: 88px 0; position: relative; }
+    .section:nth-of-type(even) { background: var(--light); }
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 44px;
+      font-size: clamp(1.45rem, 2.5vw, 1.8rem);
+    }
+    .section-heading .num {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      border-radius: 50%;
+      color: var(--white);
+      background: var(--red);
+      font-size: 1rem;
+    }
+    .section-heading .line {
+      height: 2px;
+      flex: 1;
+      background: linear-gradient(90deg, var(--red), transparent);
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 11px;
+      border-radius: 999px;
+      color: var(--red);
+      background: var(--red-soft);
+      font-size: .75rem;
+      font-weight: 650;
+      white-space: nowrap;
+    }
+    .reveal { opacity: 0; transform: translateY(22px); }
+    .reveal.visible { animation: reveal .65s ease forwards; }
+    @keyframes reveal { to { opacity: 1; transform: none; } }
 
-    <link rel="icon" href="images/base/logo.ico" type="image/x-icon">
+    .hero {
+      min-height: 92vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: 540px;
+      height: 540px;
+      right: -170px;
+      bottom: -230px;
+      border: 90px solid var(--red-soft);
+      border-radius: 50%;
+    }
+    .hero-content { position: relative; z-index: 1; padding: 80px 24px; }
+    .logo { width: 176px; height: auto; margin-bottom: 30px; opacity: .86; }
+    .hero-kicker {
+      display: inline-block;
+      margin-bottom: 24px;
+      padding: 6px 22px;
+      border: 1.5px solid var(--red);
+      border-radius: 999px;
+      color: var(--red);
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+    }
+    .hero h1 {
+      max-width: 840px;
+      font-size: clamp(2.35rem, 7vw, 4.6rem);
+      line-height: 1.12;
+      letter-spacing: -.035em;
+    }
+    .hero-subtitle { margin-top: 20px; color: var(--secondary); font-size: 1.05rem; }
+    .hero-meta {
+      display: flex;
+      justify-content: center;
+      gap: clamp(28px, 7vw, 76px);
+      margin-top: 52px;
+    }
+    .hero-meta strong { display: block; color: var(--red); font-size: 2rem; line-height: 1.2; }
+    .hero-meta span { color: var(--muted); font-size: .78rem; }
+    .scroll-cue { position: absolute; bottom: 28px; color: var(--muted); font-size: .78rem; }
 
-    <link rel="stylesheet" type="text/css" href="./css/header.css">
-    <link rel="stylesheet" type="text/css" href="./css/index.css">
+    .outline-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+    .outline-item {
+      min-height: 230px;
+      padding: 34px 30px;
+      text-decoration: none;
+      border-right: 1px solid var(--border);
+      transition: background .2s ease;
+    }
+    .outline-item:last-child { border-right: 0; }
+    .outline-item:hover, .outline-item:focus-visible { background: var(--red-soft); outline: none; }
+    .outline-index { color: var(--red); font-size: .78rem; font-weight: 750; }
+    .outline-item h3 { margin: 46px 0 12px; font-size: 1.25rem; }
+    .outline-item p { color: var(--secondary); font-size: .87rem; }
+
+    .intro-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 28px; }
+    .identity-card {
+      padding: 34px;
+      border-radius: 18px;
+      color: var(--white);
+      background: var(--dark);
+    }
+    .identity-card .name { font-size: 2rem; font-weight: 800; }
+    .identity-card .role { margin: 3px 0 32px; color: rgba(255,255,255,.58); }
+    .identity-row { padding: 14px 0; border-top: 1px solid rgba(255,255,255,.12); }
+    .identity-row small { display: block; color: rgba(255,255,255,.45); }
+    .intro-stack { display: grid; gap: 20px; }
+    .info-card { padding: 26px 28px; border: 1px solid var(--border); border-radius: 16px; background: var(--white); }
+    .info-card h3 { margin-bottom: 14px; font-size: 1rem; color: var(--red); }
+    .info-card li { list-style: none; color: var(--secondary); font-size: .9rem; }
+    .info-card li + li { margin-top: 8px; }
+    .info-card strong { color: var(--text); }
+
+    .work-lead {
+      max-width: 850px;
+      margin: -18px 0 42px 56px;
+      color: var(--secondary);
+    }
+    .timeline { position: relative; margin: 0 0 64px 18px; padding-left: 48px; }
+    .timeline::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: linear-gradient(var(--red), var(--border));
+    }
+    .timeline-item { position: relative; padding-bottom: 30px; }
+    .timeline-item:last-child { padding-bottom: 0; }
+    .timeline-item::before {
+      content: "";
+      position: absolute;
+      left: -55px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border: 3px solid var(--white);
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 3px rgba(255,58,23,.16);
+    }
+    .timeline-date { color: var(--red); font-size: .78rem; font-weight: 750; letter-spacing: .04em; }
+    .timeline-item h3 { margin: 2px 0 4px; font-size: 1rem; }
+    .timeline-item p { color: var(--secondary); font-size: .87rem; }
+
+    .project {
+      margin-top: 28px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+    .project-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 25px 30px;
+      color: var(--white);
+      background: var(--dark);
+    }
+    .project-num {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 48px;
+      border-radius: 13px;
+      background: var(--red);
+      font-size: .8rem;
+      font-weight: 800;
+    }
+    .project-head h3 { font-size: 1.22rem; line-height: 1.3; }
+    .project-head p { color: rgba(255,255,255,.54); font-size: .78rem; }
+    .project-body { padding: 30px; }
+    .change-list { display: grid; gap: 14px; }
+    .change {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      color: var(--secondary);
+      font-size: .9rem;
+    }
+    .change b {
+      display: grid;
+      place-items: center;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      color: var(--red);
+      background: var(--red-soft);
+      font-size: .75rem;
+    }
+    .change strong { color: var(--text); }
+    .project-note {
+      margin-top: 24px;
+      padding: 16px 18px;
+      border-left: 3px solid var(--red);
+      background: var(--red-soft);
+      color: var(--secondary);
+      font-size: .86rem;
+    }
+    .media-section { margin-top: 28px; }
+    .media-heading {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      color: var(--text);
+      font-size: .9rem;
+      font-weight: 750;
+    }
+    .media-heading::before {
+      content: "";
+      width: 3px;
+      height: 16px;
+      border-radius: 2px;
+      background: var(--red);
+    }
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .media-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .media-grid.one { grid-template-columns: 1fr; }
+    .media-grid.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .media-card.full-row { grid-column: 1 / -1; }
+    .media-card {
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      background: var(--light);
+    }
+    .media-card img,
+    .media-card video {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #0b0b0c;
+      object-fit: contain;
+    }
+    .media-card img { background: #ececef; }
+    .media-card figcaption {
+      padding: 9px 12px;
+      color: var(--secondary);
+      background: var(--white);
+      font-size: .76rem;
+      text-align: center;
+    }
+    .media-details {
+      margin-top: 24px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--light);
+    }
+    .media-details summary {
+      padding: 15px 18px;
+      color: var(--text);
+      background: var(--white);
+      cursor: pointer;
+      font-size: .86rem;
+      font-weight: 750;
+      list-style-position: inside;
+    }
+    .media-details[open] summary { border-bottom: 1px solid var(--border); }
+    .media-details .media-grid { padding: 14px; }
+    .project-group-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 64px;
+      margin-bottom: 8px;
+      font-size: 1.35rem;
+    }
+    .project-group-title span {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      flex: 0 0 34px;
+      border-radius: 50%;
+      color: var(--white);
+      background: var(--red);
+      font-size: .82rem;
+    }
+    .project-group-title::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--border);
+    }
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 18px;
+      color: var(--red);
+      font-size: .8rem;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .source-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    .experience-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+    .experience-card {
+      padding: 30px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--white);
+    }
+    .experience-card .kind { color: var(--red); font-size: .77rem; font-weight: 750; }
+    .experience-card h3 { margin: 12px 0 10px; font-size: 1.1rem; }
+    .experience-card p { color: var(--secondary); font-size: .88rem; }
+    .papers { margin-top: 40px; padding: 30px; border-radius: 18px; background: var(--light); }
+    .papers h3 { margin-bottom: 18px; }
+    .paper {
+      display: grid;
+      grid-template-columns: 30px 1fr auto;
+      gap: 12px;
+      align-items: baseline;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: .86rem;
+    }
+    .paper:last-child { border-bottom: 0; }
+    .paper span:first-child { color: var(--red); font-weight: 800; }
+    .paper em { color: var(--muted); font-size: .76rem; font-style: normal; }
+    .paper a { text-decoration-color: rgba(255,58,23,.35); text-underline-offset: 3px; }
+    .paper a:hover { color: var(--red); }
+    footer { padding: 30px; text-align: center; color: rgba(255,255,255,.5); background: var(--dark); font-size: .78rem; }
+
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+    .table-wrap { margin-top: 22px; overflow-x: auto; border: 1px solid var(--border); border-radius: 13px; }
+    .data-table th, .data-table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    .data-table th { color: var(--white); background: var(--dark); font-weight: 650; }
+    .data-table tbody tr:last-child td { border-bottom: 0; }
+    .data-table tbody tr:nth-child(even) td { background: var(--light); }
+    .source-links { display: flex; flex-wrap: wrap; gap: 4px 22px; }
+    .source-link.local { color: var(--secondary); }
+    .next-list { margin-top: 40px; padding: 30px; border-radius: 18px; border: 1px solid var(--border); background: var(--white); }
+    .next-list h3 { margin-bottom: 14px; }
+    .next-list li { list-style: none; position: relative; padding: 8px 0 8px 22px; color: var(--secondary); font-size: .9rem; }
+    .next-list li::before { content: ""; position: absolute; left: 0; top: 17px; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .outline-grid.four-col { grid-template-columns: repeat(4, 1fr); }
+    .stack-map { display: grid; gap: 12px; }
+    .layer { display: block; padding: 20px 24px; border: 1px solid var(--border); border-radius: 16px; background: var(--white); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
+    a.layer:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .layer-label { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: .78rem; font-weight: 750; letter-spacing: .04em; color: var(--muted); }
+    .layer h3 { margin-bottom: 6px; font-size: 1.08rem; }
+    .layer p { color: var(--secondary); font-size: .85rem; }
+    .layer-core { color: var(--white); background: var(--dark); border: 0; box-shadow: 0 18px 40px rgba(255,58,23,.18); }
+    .layer-core .layer-label { color: rgba(255,255,255,.55); }
+    .layer-core p { color: rgba(255,255,255,.7); }
+    .layer-core .chip { color: var(--white); background: rgba(255,255,255,.1); }
+    .layer-base { background: var(--light); border-style: dashed; }
+    .layer-loop { border: 1.5px solid var(--red); }
+    .layer-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .flow { display: flex; justify-content: center; gap: 22%; color: var(--red); font-size: .78rem; font-weight: 700; }
+    .chip { display: inline-flex; padding: 3px 10px; border-radius: 999px; background: var(--light); color: var(--text); font-size: .74rem; font-weight: 600; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .metric-row { display: flex; flex-wrap: wrap; gap: 26px; margin-top: 14px; }
+    .metric-row strong { display: block; color: var(--red); font-size: 1.4rem; line-height: 1.2; }
+    .metric-row span { color: rgba(255,255,255,.55); font-size: .74rem; }
+    .lvl { margin-left: auto; padding: 2px 10px; border-radius: 999px; color: var(--white); background: var(--red); font-size: .7rem; letter-spacing: 0; }
+    .subhead { margin: 56px 0 18px; font-size: 1.15rem; }
+    .focus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .focus-card { display: flex; flex-direction: column; padding: 26px; border: 1px solid var(--border); border-radius: 18px; background: var(--white); text-decoration: none; }
+    .focus-card:hover { box-shadow: var(--shadow); }
+    .focus-top { display: flex; align-items: center; color: var(--red); font-size: .76rem; font-weight: 750; }
+    .focus-card h3 { margin: 12px 0 12px; font-size: 1.05rem; line-height: 1.45; }
+    .focus-card li { list-style: none; position: relative; padding-left: 14px; color: var(--secondary); font-size: .84rem; }
+    .focus-card li + li { margin-top: 6px; }
+    .focus-card li::before { content: ""; position: absolute; left: 0; top: .72em; width: 5px; height: 5px; border-radius: 50%; background: var(--red); }
+    .focus-card .chip-row { margin-top: auto; padding-top: 16px; }
+    .focus-card .bench { margin-top: 12px; color: var(--muted); font-size: .76rem; }
+    .support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+    .support-box { padding: 24px 26px; border-radius: 18px; background: var(--light); }
+    .support-box h4 { margin-bottom: 12px; font-size: .95rem; }
+    .support-item { display: block; padding: 10px 0; border-top: 1px solid var(--border); text-decoration: none; }
+    .support-item strong { display: block; font-size: .88rem; }
+    .support-item span { color: var(--secondary); font-size: .8rem; }
+    .support-item:hover strong { color: var(--red); }
+    .cap-lead { max-width: 880px; margin: -18px 0 26px 56px; color: var(--secondary); }
+    .evo { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px 56px; padding: 0; }
+    .evo li { list-style: none; display: flex; align-items: center; gap: 8px; color: var(--text); font-size: .8rem; font-weight: 650; }
+    .evo li span { padding: 6px 12px; border-radius: 10px; background: var(--white); border: 1px solid var(--border); }
+    .evo li:first-child span { color: var(--white); background: var(--red); border-color: var(--red); }
+    .evo li + li::before { content: "→"; color: var(--red); }
+    .lineage { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-bottom: 20px; padding: 12px 14px; border-radius: 12px; background: var(--light); font-size: .76rem; }
+    .lineage b { color: var(--muted); font-weight: 700; }
+    .lineage b.out { margin-left: 10px; }
+    .lineage a { padding: 2px 9px; border-radius: 999px; background: var(--white); border: 1px solid var(--border); color: var(--text); text-decoration: none; }
+    .lineage a:hover { color: var(--red); border-color: var(--red); }
+    .roadmap-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .roadmap-card { padding: 24px 26px; border: 1px solid var(--border); border-radius: 18px; background: var(--white); }
+    .roadmap-card h4 { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: .98rem; }
+    .roadmap-card h4 a { color: var(--red); font-size: .76rem; text-decoration: none; }
+    .roadmap-card li { list-style: none; position: relative; padding: 5px 0 5px 18px; color: var(--secondary); font-size: .86rem; }
+    .roadmap-card li::before { content: ""; position: absolute; left: 0; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--red); }
+    .project { scroll-margin-top: 24px; }
+    @media (max-width: 760px) {
+      .outline-grid.four-col, .layer-pair, .focus-grid, .support-grid, .roadmap-grid { grid-template-columns: 1fr; }
+      .cap-lead, .evo { margin-left: 0; }
+      .flow { gap: 12%; }
+    }
+
+    .core-trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+    .core-trio div { padding: 12px 14px; border-radius: 12px; background: rgba(255,255,255,.08); }
+    .core-trio strong { display: block; color: var(--white); font-size: .92rem; }
+    .core-trio span { color: rgba(255,255,255,.62); font-size: .76rem; }
+    .compare-wrap .data-table td:not(:first-child), .compare-wrap .data-table th:not(:first-child) { text-align: center; }
+    .compare-wrap .data-table td:not(:first-child) { font-size: 1.15rem; line-height: 1; }
+    .compare-wrap .data-table td:last-child { color: var(--red); font-weight: 750; }
+    @media (max-width: 760px) { .core-trio { grid-template-columns: 1fr; } }
+
+    .hero-links { display: flex; justify-content: center; gap: 22px; margin-top: 26px; font-size: .86rem; }
+    .hero-links a { color: var(--secondary); text-decoration: none; border-bottom: 1px solid var(--border); }
+    .hero-links a:hover { color: var(--red); border-color: var(--red); }
+    .avatar { width: 112px; height: 132px; object-fit: cover; border-radius: 16px; margin-bottom: 22px; box-shadow: var(--shadow); }
+    .skill-row { display: flex; gap: 14px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--border); }
+    .skill-row b { flex: 0 0 56px; color: var(--muted); font-size: .84rem; }
+
+    @media (max-width: 760px) {
+      .container { width: min(100% - 40px, 1100px); }
+      .section { padding: 66px 0; }
+      .hero { min-height: 88vh; }
+      .hero-meta { gap: 22px; }
+      .outline-grid, .intro-layout, .experience-grid { grid-template-columns: 1fr; }
+      .outline-item { min-height: 170px; border-right: 0; border-bottom: 1px solid var(--border); }
+      .outline-item:last-child { border-bottom: 0; }
+      .outline-item h3 { margin-top: 26px; }
+      .work-lead { margin-left: 0; }
+      .project-head, .project-body { padding: 22px 20px; }
+      .media-grid, .media-grid.one, .media-grid.three, .media-grid.four { grid-template-columns: 1fr; }
+      .paper { grid-template-columns: 26px 1fr; }
+      .paper em { grid-column: 2; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1; transform: none; }
+      .reveal.visible { animation: none; }
+      * { transition-duration: .01ms !important; }
+    }
+  </style>
 </head>
-
 <body>
-    <!-- 导航栏 -->
-    <header class="header">
-        <nav>
-            <ul>
-                <li></li>
-                <li>Haolin MA</li>
-                <li></li>
-                <li><a href="./index.html">Home</a></li>
-                <li><a href="./paper.html">Publications</a></li>
-                <li><a href="./blog.html">Blogs</a></li>
-            </ul>
-        </nav>
-    </header>
-    <hr style="border: 1px solid rgba(0, 0, 0, 0.1);margin: 3px 10px;" />
+  <header class="hero">
+    <div class="hero-content">
+      <img class="avatar" src="media/photo.jpg" alt="马浩林">
+      <div><span class="hero-kicker">HUMANOID MOTION · RETARGETING · TELEOPERATION</span></div>
+      <h1>马浩林 Haolin Ma</h1>
+      <p class="hero-subtitle">人形机器人运动控制算法工程师 · LimX Dynamics 逐际动力</p>
+      <div class="hero-meta">
+        <div><strong>0.6 ms</strong><span>实时重定向单帧</span></div>
+        <div><strong>10+</strong><span>适配机型</span></div>
+        <div><strong>96%</strong><span>点云对应解剖一致性</span></div>
+        <div><strong>12%→88%</strong><span>地形动作物理可行率</span></div>
+      </div>
+      <div class="hero-links">
+        <a href="mailto:ma207185099@gmail.com">ma207185099@gmail.com</a>
+        <a href="https://github.com/sm-1z" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://scholar.google.com/citations?user=cLQdZUwAAAAJ&amp;hl=en" target="_blank" rel="noreferrer">Google Scholar</a>
+      </div>
+    </div>
+    <div class="scroll-cue">向下浏览 ↓</div>
+  </header>
 
-    <!-- 个人信息栏 -->
-    <aside class="index_person_info">
-        <img src=" ./images/base/head.jpg" alt="显示失败" style="margin-top: 25px;width: 150px;height: 200px;" />
-        <p style="font-family: 'Arial', '华文行楷', 'KaiTi', '行楷', sans-serif;font-size: 18px;">Haolin MA(马浩林)</p>
+  <main>
+    <section class="section" id="about">
+      <div class="container">
+        <h2 class="section-heading reveal"><span class="num">01</span>关于我<span class="line"></span></h2>
+        <div class="intro-layout">
+          <article class="identity-card reveal">
+            <div class="name">马浩林</div>
+            <div class="role">人形机器人运动控制算法工程师</div>
+            <div class="identity-row"><small>现任</small>LimX Dynamics 逐际动力 · 2025 年 7 月至今</div>
+            <div class="identity-row"><small>方向</small>动作重定向 · 具身数据 · 全身遥操作</div>
+          </article>
+          <div class="intro-stack">
+            <article class="info-card reveal"><h3>概述</h3><ul><li>专注“人类动作 → 机器人可执行动作”的全链路技术：负责人形机器人动作重定向算法体系（优化式、学习式、地形感知）的研发与落地，并担任全身遥操作系统算法负责人。具备从前沿论文复现、算法设计到产品级工程化与跨团队交付的完整能力。</li></ul></article>
+            <article class="info-card reveal"><h3>教育背景</h3><ul><li><strong>北京航空航天大学</strong>｜机械工程｜硕士（2022–2025）</li><li><strong>北京航空航天大学</strong>｜机器人工程｜学士（2018–2022）</li></ul></article>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        <!-- 替换href中的邮箱、链接等个人信息地址 -->
-        <p>Connect me:<br></p>
-        <ul>
-            <li><a href="mailto:ma207185099@gmail.com?" target="_top"><img src="./images/base/mail.png"
-                        alt="显示失败" />ma207185099@gmail.com</a></li>
-            <li><a href="https://github.com/sm-1z" target="_blank"><img src="./images/base/Github.png"
-                        alt="显示失败" />sm-1z</a></li>
-            <li><a href="https://scholar.google.com/citations?user=cLQdZUwAAAAJ&hl=en" target="_blank"><img src="./images/base/scholar.png"
-                        alt="显示失败" />Google Scholar</a></li>
-        </ul>
-    </aside>
+    <section class="section" id="stack">
+      <div class="container">
+        <h2 class="section-heading reveal"><span class="num">02</span>技术版图<span class="line"></span></h2>
+        <p class="cap-lead reveal">所有工作围绕一件事：把人类动作变成机器人可执行的动作数据。动作重定向是核心，遥操作与训练数据是它的两个出口，动作模仿用来验证数据质量。</p>
+        <div class="stack-map reveal">
+          <div class="layer">
+            <div class="layer-label">输入 · 多源人体动作</div>
+            <p>惯性 / 光学动捕、VR、视频与开源数据集，统一为标准人体动作表示</p>
+          </div>
+          <div class="flow"><span>↓</span></div>
+          <a class="layer layer-core" href="#retarget">
+            <div class="layer-label">核心 · 动作重定向 <span class="lvl">核心方向</span></div>
+            <h3>人类动作 → 机器人可执行动作</h3>
+            <div class="core-trio">
+              <div><strong>优化式重定向</strong><span>C++ 实时 0.6 ms · 10+ 机型</span></div>
+              <div><strong>学习式点云对应</strong><span>免人工映射 · 解剖一致性 96%</span></div>
+              <div><strong>地形适配 + 动力学</strong><span>物理可行率 12% → 88%</span></div>
+            </div>
+          </a>
+          <div class="flow"><span>↙ 实时</span><span>离线 ↘</span></div>
+          <div class="layer-pair">
+            <a class="layer" href="#teleop"><div class="layer-label">实时 <span class="lvl">算法负责人</span></div><h3>全身遥操作</h3><p>具身智能数据采集与对外项目</p></a>
+            <a class="layer" href="#retarget"><div class="layer-label">离线</div><h3>训练数据生产</h3><p>全身控制、强化学习动作模仿、动画内容</p></a>
+          </div>
+          <div class="flow"><span>↓</span></div>
+          <a class="layer layer-loop" href="#mimic"><div class="layer-label">验证 · 策略部署</div><h3>开源动作模仿 · 舞蹈真机</h3><p>检验动作数据能否被策略学会并在真机执行</p></a>
+        </div>
 
-    <!-- 文章栏 -->
-    <article class="index_article">
-        <h1>Welcome to my personal website!</h1>
-        <p>I am <b>Haolin MA</b>, a master student in Beihang University (2022-2025). I earned my bachelor's degree from Beihang University (2018-2022).</p>
-        <p>I am interested in locomotion of humanoid robot. Three topics are converd: 1) combining MPC with learning methods, 2) real world application of humanoids, 3) robust and efficient movements.</p>
-        <p>You can check my publications <a href="./paper.html">here</a> and my blogs <a href="./blog.html">here</a>.</p>
-    </article>
+        <h3 class="subhead reveal">重点与竞争力</h3>
+        <div class="focus-grid">
+          <a class="focus-card reveal" href="#retarget">
+            <div class="focus-top">核心 01<span class="lvl">核心方向</span></div>
+            <h3>人形机器人动作重定向</h3>
+            <ul><li>覆盖优化式、学习式、地形感知三条技术路线，逐层解决“快与通用”“免人工配置”“非平地与动力学可行”。</li><li>实时重定向单帧 0.6 ms；适配 10 余款人形 / 双足机型与 10 余种动作数据源。</li><li>与 2026 年 6 个公开方案对比，是少数同时覆盖地形重建、踏面解耦与动力学验证的完整链路。</li></ul>
+            <div class="chip-row"><span class="chip">0.6 ms / 帧</span><span class="chip">96% 解剖一致性</span><span class="chip">12% → 88% 物理可行率</span></div>
+          </a>
+          <a class="focus-card reveal" href="#teleop">
+            <div class="focus-top">核心 02<span class="lvl">算法负责人</span></div>
+            <h3>全身遥操作系统</h3>
+            <ul><li>负责人形机器人全身遥操作的算法方向：架构梳理与重构、任务分工、跨部门协作与版本交付。</li><li>统一数据采集接口规范与真机测试流程，支撑具身智能（VLA）数据采集与多个对外项目。</li></ul>
+            <div class="chip-row"><span class="chip">架构重构</span><span class="chip">多产品线交付</span><span class="chip">VLA 数据采集</span></div>
+          </a>
+          <a class="focus-card reveal" href="#mimic">
+            <div class="focus-top">其他 03<span class="lvl">开源</span></div>
+            <h3>开源人形机器人动作模仿</h3>
+            <ul><li>完成公司开源的动作模仿项目：训练、策略导出与真机部署全流程工具化。</li><li>实现人形机器人舞蹈动作真机演示，并完成开源审查与发布。</li></ul>
+            <div class="chip-row"><span class="chip">训练 → 部署</span><span class="chip">舞蹈真机</span><span class="chip">开源发布</span></div>
+          </a>
+        </div>
+        <h3 class="subhead reveal">重定向能力的演进逻辑</h3>
+        <div class="support-grid">
+          <div class="support-box reveal"><h4>优化式 → 学习式：去掉人工映射</h4><a class="support-item" href="#mod-opt"><strong>优化式重定向的瓶颈</strong><span>依赖按骨架手工配置的映射与权重，换机器人需要重新调参；只约束少数关节，身体表面缺少约束。</span></a><a class="support-item" href="#mod-learn"><strong>学习式点云对应的回答</strong><span>以人机外表面点云作为统一接口，对应关系学习一次、全程复用，新机型无需手工配置。</span></a></div>
+          <div class="support-box reveal"><h4>运动学 → 动力学：走出平地</h4><a class="support-item" href="#mod-opt"><strong>共同局限</strong><span>默认平地；按机器人尺寸缩放后台阶踏面变窄；输出只是运动学参考，不保证物理可行。</span></a><a class="support-item" href="#mod-terrain"><strong>地形适配的回答</strong><span>从动作重建地形、按踏面重新规划落脚，再用接触隐式轨迹优化得到带接触力与力矩的物理可行动作。</span></a></div>
+        </div>
+      </div>
+    </section>
 
+    <section class="section" id="retarget">
+      <div class="container">
+        <h2 class="section-heading reveal"><span class="num">03</span>核心方向：人形机器人动作重定向<span class="line"></span></h2>
+        <p class="cap-lead reveal">把人类动作转换为机器人可执行的动作数据，是遥操作、全身控制、强化学习动作模仿与动画内容的共同基础。三条技术路线逐层补齐上一层的不足。</p>
+        <ol class="evo reveal" aria-label="技术演进链"><li><span>优化式 IK</span></li><li><span>实时化</span></li><li><span>约束感知与质量基准</span></li><li><span>学习式点云对应</span></li><li><span>地形感知落脚规划</span></li><li><span>接触隐式动力学优化</span></li></ol>
+        <article class="project reveal" id="mod-opt">
+          <header class="project-head">
+            <span class="project-num">3.1</span>
+            <div><h3>优化式重定向引擎：工程化与实时化</h3><p>从研究代码到多业务共用的产品级算法</p></div>
+            <span class="tag">Real-time</span>
+          </header>
+          <div class="project-body">
+            <div class="lineage"><b class="out">支撑 →</b><a href="#teleop">遥操作实时链路</a><a href="#mod-learn">学习式重定向</a></div>
+            <div class="change-list">
+              <div class="change"><b>1</b><p><strong>架构重构</strong>：模块化解耦，核心代码规模缩减约 60%，以小测试集逐模块回归保证结果一致。</p></div>
+              <div class="change"><b>2</b><p><strong>实时化</strong>：Python → C++，单帧耗时 8 ms → 0.6 ms，常驻节点直接嵌入遥操作闭环。</p></div>
+              <div class="change"><b>3</b><p><strong>通用性</strong>：统一的多机型、多数据源适配框架：10 余款人形 / 双足机型，10 余种动捕、视频与开源数据源。</p></div>
+              <div class="change"><b>4</b><p><strong>约束感知</strong>：真实外形自碰撞规避、脚 / 膝 / 手多接触接地、脚滑抑制；跨版本质量基准（4 机型 × 80 动作）让算法回归可量化。</p></div>
+            </div>
+            <div class="media-section">
+              <div class="media-heading">Python 原型 vs C++ 实时版</div>
+              <div class="media-grid">
+                <figure class="media-card"><video controls preload="metadata" src="media/retarget_python.mp4"></video><figcaption>优化式重定向 · Python 原型（约 8 ms / 帧）</figcaption></figure>
+                <figure class="media-card"><video controls preload="metadata" src="media/retarget_cpp.mp4"></video><figcaption>优化式重定向 · C++ 实时版（约 0.6 ms / 帧）</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </article>
+        <article class="project reveal" id="mod-learn">
+          <header class="project-head">
+            <span class="project-num">3.2</span>
+            <div><h3>学习式点云对应重定向</h3><p>复现 Unified Motion Retargeting（arXiv 2609.02134）</p></div>
+            <span class="tag">Learned</span>
+          </header>
+          <div class="project-body">
+            <div class="lineage"><b>继承 ←</b><a href="#mod-opt">优化式引擎的映射瓶颈</a><b class="out">支撑 →</b><a href="#mod-terrain">地形适配</a></div>
+            <div class="change-list">
+              <div class="change"><b>1</b><p><strong>方法</strong>：在人体与机器人表面各采样数百个点，学习人机表面点云对应；逐帧让配对点重合求解关节角，再做脚地对齐。</p></div>
+              <div class="change"><b>2</b><p><strong>我的角色</strong>：项目负责人，带领实习生完成复现与落地；负责 19 种动作数据源统一转换、SMPL-X 反解与批量生产接入。</p></div>
+              <div class="change"><b>3</b><p><strong>效果</strong>：新机型接入无需人工配置映射，解剖学一致性 96.4%；批量吞吐约 245 帧 / 秒，接口与优化式引擎兼容。</p></div>
+            </div>
+            <div class="media-section">
+              <div class="media-heading">点云对应与重定向结果</div>
+              <div class="media-grid">
+                <figure class="media-card full-row"><img loading="lazy" src="media/point_cloud_correspondence.png" alt="学到的人机表面点云对应：同一下标、同一分段颜色"><figcaption>学到的人机表面点云对应：同一下标、同一分段颜色</figcaption></figure>
+                <figure class="media-card"><video controls preload="metadata" src="media/learned_retarget_aiming.mp4"></video><figcaption>动捕瞄准动作 → 人形机器人（左：人体表面，右：重定向结果）</figcaption></figure>
+                <figure class="media-card"><video controls preload="metadata" src="media/learned_retarget_smplx.mp4"></video><figcaption>SMPL-X 人体模型 → 人形机器人</figcaption></figure>
+              </div>
+            </div>
+            <div class="source-links">
+              <a class="source-link" href="https://arxiv.org/abs/2609.02134" target="_blank" rel="noreferrer">↗ 论文 arXiv:2609.02134</a>
+            </div>
+          </div>
+        </article>
+        <article class="project reveal" id="mod-terrain">
+          <header class="project-head">
+            <span class="project-num">3.3</span>
+            <div><h3>地形适配与动力学验证</h3><p>复现 Generate, Track, Improve（arXiv 2609.31577）动作库管线</p></div>
+            <span class="tag">Terrain + Dynamics</span>
+          </header>
+          <div class="project-body">
+            <div class="lineage"><b>继承 ←</b><a href="#mod-learn">学习式重定向结果</a><b class="out">支撑 →</b><a href="#mod-compare">横向对比</a></div>
+            <div class="change-list">
+              <div class="change"><b>1</b><p><strong>地形重建</strong>：仅凭一段上 / 下楼动作，从支撑脚反推楼梯几何（台阶高、净深、边缘、级数），毫米级精度，开源动捕 66/68 条正确。</p></div>
+              <div class="change"><b>2</b><p><strong>落脚规划</strong>：平地步态按接触切分，每步一级、整脚落在踏面内重新规划；台阶高 0.05–0.25 m、净深 0.30–0.40 m 可任意指定。</p></div>
+              <div class="change"><b>3</b><p><strong>动力学优化</strong>：基于可微 MuJoCo 多重射击的接触隐式轨迹优化，引入冲击惩罚与并联电机限位；楼梯动作物理可行率由 12.5% 提升至 87.5%。</p></div>
+              <div class="change"><b>4</b><p><strong>质检</strong>：36 项自动质检（穿地、硬着陆、局部支撑、滑移、电机限位等）与 100+ 项回归测试。</p></div>
+            </div>
+            <div class="media-section">
+              <div class="media-heading">落脚规划与地形重建</div>
+              <div class="media-grid">
+                <figure class="media-card full-row"><video controls preload="metadata" src="media/flat_to_stairs.mp4"></video><figcaption>同一条平地步态生成 5–20 cm 上下楼（实体为动力学优化解，绿影为优化前参考）</figcaption></figure>
+                <figure class="media-card"><video controls preload="metadata" src="media/terrain_reconstruction.mp4"></video><figcaption>仅凭动作重建楼梯：落脚检测 → 拟合楼梯 → 动力学验证</figcaption></figure>
+                <figure class="media-card"><img loading="lazy" src="media/dynamics_pass_table.png" alt="16 块地形上动力学优化后的通过情况对比"><figcaption>16 块地形上动力学优化后的通过情况对比</figcaption></figure>
+              </div>
+            </div>
+            <div class="source-links">
+              <a class="source-link" href="https://arxiv.org/abs/2609.31577" target="_blank" rel="noreferrer">↗ 论文 arXiv:2609.31577</a>
+              <a class="source-link" href="https://shooting-for-contact.github.io/" target="_blank" rel="noreferrer">↗ DSMS 项目页</a>
+            </div>
+          </div>
+        </article>
+        <article class="project reveal" id="mod-compare">
+          <header class="project-head">
+            <span class="project-num">3.4</span>
+            <div><h3>横向对比</h3><p>对照 2026 年 6 个公开重定向方案</p></div>
+            <span class="tag">Benchmark</span>
+          </header>
+          <div class="project-body">
+            <div class="lineage"><b>继承 ←</b><a href="#retarget">三条技术路线</a></div>
+            <div class="change-list">
+              <div class="change"><b>1</b><p><strong>优势</strong>：在“人体楼梯动作 → 小型人形机器人”问题上，同时覆盖地形重建、踏面解耦与动力学验证。</p></div>
+              <div class="change"><b>2</b><p><strong>短板与方向</strong>：尚未接入强化学习跟踪与实机闭环；下一步引入原尺度 SDF 交互约束、优先级 IK 与采样式动力学修正。</p></div>
+            </div>
+            <div class="table-wrap compare-wrap"><table class="data-table">
+              <thead><tr><th>能力</th><th>robot_retargeter</th><th>HOI-Retarget</th><th>OTRetarget</th><th>PriMoRetarget</th><th>DynaRetarget</th><th>VICAR</th><th>本链路</th></tr></thead>
+              <tbody>
+                <tr><td>从动作重建楼梯几何</td><td>○</td><td>○</td><td>○</td><td>○</td><td>○</td><td>◐</td><td>●</td></tr>
+                <tr><td>楼梯尺寸与人体解耦</td><td>○</td><td>◐</td><td>◐</td><td>○</td><td>○</td><td>○</td><td>●</td></tr>
+                <tr><td>按踏面规划落脚、整脚支撑</td><td>○</td><td>○</td><td>◐</td><td>◐</td><td>○</td><td>◐</td><td>●</td></tr>
+                <tr><td>动力学可行性</td><td>○</td><td>○</td><td>○</td><td>○</td><td>●</td><td>○</td><td>●</td></tr>
+                <tr><td>自碰撞</td><td>○</td><td>?</td><td>●</td><td>?</td><td>◐</td><td>?</td><td>◐</td></tr>
+                <tr><td>支持 LimX 机型</td><td>◐</td><td>○</td><td>○</td><td>○</td><td>○</td><td>○</td><td>●</td></tr>
+                <tr><td>RL / 实机证据</td><td>○</td><td>◐</td><td>●</td><td>●</td><td>●</td><td>●</td><td>○</td></tr>
+              </tbody>
+            </table></div>
+            <p class="project-note">● 直接具备　◐ 部分具备　○ 不具备　? 公开材料未说明。各方案评测数据与机器人不同，只比较能力覆盖。</p>
+            <div class="source-links">
+              <a class="source-link" href="https://arxiv.org/abs/2609.36602" target="_blank" rel="noreferrer">↗ OTRetarget</a>
+              <a class="source-link" href="https://arxiv.org/abs/2609.34674" target="_blank" rel="noreferrer">↗ HOI-Retarget</a>
+              <a class="source-link" href="https://arxiv.org/abs/2610.12642" target="_blank" rel="noreferrer">↗ PriMoRetarget</a>
+              <a class="source-link" href="https://github.com/Atarilab/sbto" target="_blank" rel="noreferrer">↗ DynaRetarget</a>
+              <a class="source-link" href="https://arxiv.org/abs/2610.13079" target="_blank" rel="noreferrer">↗ VICAR</a>
+              <a class="source-link" href="https://github.com/ccrpRepo/robot_retargeter" target="_blank" rel="noreferrer">↗ robot_retargeter</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="teleop">
+      <div class="container">
+        <h2 class="section-heading reveal"><span class="num">04</span>全身遥操作系统：算法负责人<span class="line"></span></h2>
+        <p class="cap-lead reveal">遥操作是具身智能数据采集的主要入口。这部分的重点是负责人角色：把多机型、多设备、多团队的系统组织起来，并稳定交付。</p>
+        <ol class="evo reveal" aria-label="技术演进链"><li><span>梳理现状</span></li><li><span>重构架构</span></li><li><span>统一规范</span></li><li><span>分工与协作</span></li><li><span>测试与发版</span></li><li><span>交付支持</span></li></ol>
+        <article class="project reveal" id="mod-teleop">
+          <header class="project-head">
+            <span class="project-num">4.1</span>
+            <div><h3>架构重构、跨团队协作与版本交付</h3><p>算法侧负责人</p></div>
+            <span class="tag">Ownership</span>
+          </header>
+          <div class="project-body">
+            <div class="lineage"><b>继承 ←</b><a href="#mod-opt">实时重定向</a></div>
+            <div class="change-list">
+              <div class="change"><b>1</b><p><strong>架构重构</strong>：输出控制器 / 规划器设计文档与重构边界方案，完成多个代码仓库整合，基础库（轨迹、规划、运动学）统一接口。</p></div>
+              <div class="change"><b>2</b><p><strong>分工与协作</strong>：拆分算法侧任务并带教新人；与 App、软件、硬件、预研、测试、项目团队对接接口与需求。</p></div>
+              <div class="change"><b>3</b><p><strong>规范与交付</strong>：统一数据采集接口规范与真机测试清单，交付多条产品线的多个版本，支撑 VLA 数据采集与对外项目。</p></div>
+              <div class="change"><b>4</b><p><strong>问题攻关</strong>：接入 10 余种动捕 / VR / 数据手套设备与多款灵巧手；以数据定量定位网络抖动、缓冲积压等延迟问题。</p></div>
+            </div>
+            <div class="media-section">
+              <div class="media-heading">延迟问题的定量分析</div>
+              <div class="media-grid one">
+                <figure class="media-card"><img loading="lazy" src="media/teleop_latency.png" alt="无线与有线传输下的延迟分布定量对比"><figcaption>无线与有线传输下的延迟分布定量对比</figcaption></figure>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="mimic">
+      <div class="container">
+        <h2 class="section-heading reveal"><span class="num">05</span>开源人形机器人动作模仿<span class="line"></span></h2>
+        <p class="cap-lead reveal">动作模仿检验重定向数据能否被策略学会并在真机执行，是整条数据链路的最终验证。</p>
+        <ol class="evo reveal" aria-label="技术演进链"><li><span>重定向数据</span></li><li><span>策略训练</span></li><li><span>ONNX 导出</span></li><li><span>真机部署</span></li><li><span>开源发布</span></li></ol>
+        <article class="project reveal" id="mod-mimic">
+          <header class="project-head">
+            <span class="project-num">5.1</span>
+            <div><h3>训练到真机部署的全流程开源</h3><p>基于 BeyondMimic</p></div>
+            <span class="tag">Open Source</span>
+          </header>
+          <div class="project-body">
+            <div class="lineage"><b>继承 ←</b><a href="#retarget">重定向数据</a></div>
+            <div class="change-list">
+              <div class="change"><b>1</b><p><strong>全流程工具化</strong>：跑通训练、回放、策略导出（PT → ONNX）与控制器部署，并解耦为独立工具。</p></div>
+              <div class="change"><b>2</b><p><strong>真机与开源</strong>：实现人形机器人舞蹈动作真机演示；完成开源代码审查与发布，并输出全流程文档。</p></div>
+            </div>
+            <div class="media-section">
+              <div class="media-heading">舞蹈动作真机</div>
+              <div class="media-grid three">
+                <figure class="media-card"><video controls preload="metadata" src="media/dance_1.mp4"></video><figcaption>人形机器人舞蹈真机 1</figcaption></figure>
+                <figure class="media-card"><video controls preload="metadata" src="media/dance_2.mp4"></video><figcaption>人形机器人舞蹈真机 2</figcaption></figure>
+                <figure class="media-card"><video controls preload="metadata" src="media/dance_3.mp4"></video><figcaption>人形机器人舞蹈真机 3</figcaption></figure>
+              </div>
+            </div>
+            <div class="source-links">
+              <a class="source-link" href="https://github.com/HybridRobotics/whole_body_tracking" target="_blank" rel="noreferrer">↗ BeyondMimic</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="skills">
+      <div class="container">
+        <h2 class="section-heading reveal"><span class="num">06</span>专业技能<span class="line"></span></h2>
+        <div class="reveal"><div class="skill-row"><b>算法</b><div class="chip-row" style="margin:0"><span class="chip">运动学 / 动力学</span><span class="chip">逆运动学与 QP 优化</span><span class="chip">轨迹优化 · 多重射击 · MPC</span><span class="chip">强化学习动作模仿</span><span class="chip">点云对应学习</span></div></div><div class="skill-row"><b>工程</b><div class="chip-row" style="margin:0"><span class="chip">C++</span><span class="chip">Python</span><span class="chip">MATLAB</span><span class="chip">ROS / ROS 2</span><span class="chip">Docker</span></div></div><div class="skill-row"><b>工具</b><div class="chip-row" style="margin:0"><span class="chip">MuJoCo</span><span class="chip">Pinocchio</span><span class="chip">Mink</span><span class="chip">PyTorch</span><span class="chip">Isaac Gym</span></div></div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>© 马浩林 Haolin Ma · ma207185099@gmail.com</footer>
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -35px" });
+    document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+  </script>
 </body>
-
 </html>
